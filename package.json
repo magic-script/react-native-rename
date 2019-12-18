@@ -2,11 +2,9 @@
   "name": "react-native-rename",
   "version": "2.4.1",
   "description": "Rename react-native app with just one command",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "babel src --out-dir lib",
-    "relink": "sudo npm unlink && sudo npm run prepublish && sudo npm link",
     "format": "prettier --write '**/*.{js,jsx}'",
     "lint": "eslint '**/*.{js,jsx}'",
     "react-native-rename": "babel-node src/index.js",
@@ -18,10 +16,6 @@
       "lint --fix",
       "git add"
     ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/junedomingo/react-native-rename.git"
   },
   "keywords": [
     "react-native",
@@ -35,12 +29,12 @@
   "author": "June Domingo <junedomingo@gmail.com>",
   "license": "MIT",
   "bin": {
-    "react-native-rename": "lib/index.js"
+    "react-native-rename": "src/index.js"
   },
   "bugs": {
     "url": "https://github.com/junedomingo/react-native-rename/issues"
   },
-  "homepage": "https://github.com/junedomingo/react-native-rename#readme",
+  "homepage": "https://github.com/panwrona/react-native-rename#readme",
   "dependencies": {
     "cheerio": "^0.22.0",
     "colors": "^1.1.2",
