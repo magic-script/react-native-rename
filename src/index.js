@@ -81,7 +81,8 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
       .option('-b, --bundleID [value]', 'Set custom bundle identifier eg. "com.junedomingo.travelapp"')
       .action(newName => {
         const nS_NewName = newName.replace(/\s/g, '');
-        const pattern = /^([\p{Letter}\p{Number}])+([\p{Letter}\p{Number}\s]+)$/u;
+        const namePattern = /^(?=.{3,30}$)[a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*$/;
+        const bundlePattern = /^(?=.{3,30}$)(?=.*[.])[a-zA-Z0-9]+(?:[.][a-zA-Z0-9]+)*$/;
         const lC_Ns_NewAppName = nS_NewName.toLowerCase();
         const bundleID = program.bundleID ? program.bundleID.toLowerCase() : null;
         let newBundlePath;
@@ -89,15 +90,14 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
         const listOfFilesToModifyContent = filesToModifyContent(currentAppName, newName, projectName);
 
         if (bundleID) {
-          newBundlePath = bundleID.replace(/\./g, '/');
-          const id = bundleID.split('.');
-          if (id.length < 2)
+          if(!bundlePattern.test(bundleID)) {
             return console.log(
               'Invalid Bundle Identifier. Add something like "com.travelapp" or "com.junedomingo.travelapp"'
             );
+          }
         }
 
-        if (!pattern.test(newName)) {
+        if (!namePattern.test(newName)) {
           return console.log(
             `"${newName}" is not a valid name for a project. Please use a valid identifier name (alphanumeric and space).`
           );
