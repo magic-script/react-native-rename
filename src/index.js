@@ -90,7 +90,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
         const listOfFilesToModifyContent = filesToModifyContent(currentAppName, newName, projectName);
 
         if (bundleID) {
-          if(!bundlePattern.test(bundleID)) {
+          if (!bundlePattern.test(bundleID)) {
             return console.log(
               'Invalid Bundle Identifier. Add something like "com.travelapp" or "com.junedomingo.travelapp"'
             );
@@ -221,33 +221,28 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
             let filePathsCount = 0;
             const { currentBundleID, newBundleID, newBundlePath, javaFileBase, currentJavaPath, newJavaPath } = params;
 
-            bundleIdentifiers(
-              currentAppName,
-              newName,
-              projectName,
-              currentBundleID,
-              newBundleID,
-              newBundlePath
-            ).map(file => {
-              filePathsCount += file.paths.length - 1;
-              let itemsProcessed = 0;
+            bundleIdentifiers(currentAppName, newName, projectName, currentBundleID, newBundleID, newBundlePath).map(
+              file => {
+                filePathsCount += file.paths.length - 1;
+                let itemsProcessed = 0;
 
-              file.paths.map((filePath, index) => {
-                const newPaths = [];
-                if (fs.existsSync(path.join(__dirname, filePath))) {
-                  newPaths.push(path.join(__dirname, filePath));
+                file.paths.map((filePath, index) => {
+                  const newPaths = [];
+                  if (fs.existsSync(path.join(__dirname, filePath))) {
+                    newPaths.push(path.join(__dirname, filePath));
 
-                  setTimeout(() => {
-                    itemsProcessed += index;
-                    replaceContent(file.regex, file.replacement, newPaths);
-                    if (itemsProcessed === filePathsCount) {
-                      const oldBundleNameDir = path.join(__dirname, javaFileBase, currentBundleID);
-                      resolve({ oldBundleNameDir, shouldDelete: currentJavaPath !== newJavaPath });
-                    }
-                  }, 200 * index);
-                }
-              });
-            });
+                    setTimeout(() => {
+                      itemsProcessed += index;
+                      replaceContent(file.regex, file.replacement, newPaths);
+                      if (itemsProcessed === filePathsCount) {
+                        const oldBundleNameDir = path.join(__dirname, javaFileBase, currentBundleID);
+                        resolve({ oldBundleNameDir, shouldDelete: currentJavaPath !== newJavaPath });
+                      }
+                    }, 200 * index);
+                  }
+                });
+              }
+            );
           });
 
         const rename = () => {

@@ -41,7 +41,11 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "node-replace": "^0.3.3",
-    "shelljs": "^0.7.7"
+    "shelljs": "^0.7.7",
+    "babel-plugin-transform-unicode-property-regex": "^2.0.5",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.13.0",
+    "babel-cli": "^6.26.0"
   },
   "babel": {
     "presets": [
@@ -53,11 +57,7 @@
     ]
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.1",
-    "babel-plugin-transform-unicode-property-regex": "^2.0.5",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-2": "^6.13.0",
     "eslint": "^4.10.0",
     "eslint-config-prettier": "^2.7.0",
     "eslint-plugin-prettier": "^2.3.1",
