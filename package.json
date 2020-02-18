@@ -9,7 +9,7 @@
     "lint": "eslint '**/*.{js,jsx}'",
     "react-native-rename": "babel-node src/index.js",
     "precommit": "lint-staged",
-    "prepublish": "babel src --out-dir lib"
+    "preinstall": "babel src --out-dir lib"
   },
   "lint-staged": {
     "**/*.js": [
