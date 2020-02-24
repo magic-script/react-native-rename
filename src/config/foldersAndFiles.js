@@ -12,6 +12,6 @@ export function foldersAndFiles(currentAppName, newName) {
     `ios/${nS_CurrentAppName}Tests`,
     `ios/${nS_NewName}Tests/${nS_CurrentAppName}Tests.m`,
     `ios/${nS_CurrentAppName}.xcworkspace`,
-    `ios/${nS_NewName}-Bridging-Header.h`,
+    `ios/${nS_CurrentAppName}-Bridging-Header.h`,
   ];
 }
