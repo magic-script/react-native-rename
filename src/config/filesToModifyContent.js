@@ -20,7 +20,6 @@ export function filesToModifyContent(currentAppName, newName) {
         'index.ios.js',
         `ios/${nS_NewName}.xcodeproj/project.pbxproj`,
         `ios/${nS_NewName}.xcworkspace/contents.xcworkspacedata`,
-        `ios/${nS_NewName}.xcodeproj/xcshareddata/xcschemes/${nS_NewName}-tvOS.xcscheme`,
         `ios/${nS_NewName}.xcodeproj/xcshareddata/xcschemes/${nS_NewName}.xcscheme`,
         `ios/${nS_NewName}/AppDelegate.m`,
         'android/settings.gradle',
