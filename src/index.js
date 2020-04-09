@@ -227,6 +227,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
                 let itemsProcessed = 0;
 
                 file.paths.map((filePath, index) => {
+                  console.log(`BUNDLE IDENTIFIER FILE PATH: ${filePath}`);
                   const newPaths = [];
                   if (fs.existsSync(path.join(__dirname, filePath))) {
                     newPaths.push(path.join(__dirname, filePath));
