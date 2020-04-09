@@ -220,7 +220,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
           new Promise(resolve => {
             let filePathsCount = 0;
             const { currentBundleID, newBundleID, newBundlePath, javaFileBase, currentJavaPath, newJavaPath } = params;
-
+            console.log(`BUNDLE IDENTIFIER PARAMS: ${params}`);
             bundleIdentifiers(currentAppName, newName, projectName, currentBundleID, newBundleID, newBundlePath).map(
               file => {
                 filePathsCount += file.paths.length - 1;
