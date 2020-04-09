@@ -146,6 +146,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
           new Promise(resolve => {
             let filePathsCount = 0;
             let itemsProcessed = 0;
+            console.log(`Files to modify content: ${listOfFilesToModifyContent}`);
             listOfFilesToModifyContent.map(file => {
               filePathsCount += file.paths.length;
 
@@ -201,6 +202,8 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
                   } else {
                     console.log(`Error moving: "${currentJavaPath}" "${newBundlePath}"`);
                   }
+                } else {
+                  console.log(move);
                 }
               }
 
