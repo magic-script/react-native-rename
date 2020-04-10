@@ -68,6 +68,35 @@ const cleanBuilds = () => {
   console.log('Done removing builds.'.green);
 };
 
+function copyFiles(srcPath, destPath) {
+  if (!fs.existsSync(destPath)) {
+    fs.mkdirSync(destPath);
+  }
+  const filesToCreate = fs.readdirSync(srcPath);
+  filesToCreate.forEach(file => {
+    const origFilePath = `${srcPath}/${file}`;
+    const stats = fs.statSync(origFilePath);
+    if (stats.isFile()) {
+      var contents = fs.readFileSync(origFilePath, 'utf8');
+      const writePath = `${destPath}/${file}`;
+      fs.writeFileSync(writePath, contents, 'utf8');
+    } else if (stats.isDirectory()) {
+      let newDestPath = `${destPath}/${file}`;
+      copyFiles(origFilePath, newDestPath);
+    }
+  });
+}
+
+function copyFileOrDir(element, destPath) {
+  const stats = fs.statSync(element);
+  if (stats.isFile()) {
+    var contents = fs.readFileSync(element, 'utf8');
+    fs.writeFileSync(destPath, contents, 'utf8');
+  } else if (stats.isDirectory()) {
+    copyFiles(element, destPath);
+  }
+}
+
 readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
   .then(data => {
     const $ = cheerio.load(data);
@@ -118,20 +147,10 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               itemsProcessed += index;
 
               if (fs.existsSync(path.join(__dirname, element)) || !fs.existsSync(path.join(__dirname, element))) {
-                const move = shell.exec(
-                  `git mv "${path.join(__dirname, element)}" "${path.join(__dirname, dest)}" 2>/dev/null`
-                );
-
-                if (move.code === 0) {
-                  console.log(successMsg);
-                } else if (move.code === 128) {
-                  // if "outside repository" error occured
-                  if (shell.mv('-f', path.join(__dirname, element), path.join(__dirname, dest)).code === 0) {
-                    console.log(successMsg);
-                  } else {
-                    console.log("Ignore above error if this file doesn't exist");
-                  }
-                }
+                console.log(`Resolve folders and files directory exists: ${path.join(__dirname, element)}`);
+                copyFileOrDir(path.join(__dirname, element), path.join(__dirname, dest));
+                fs.unlinkSync(path.join(__dirname, element));
+                console.log(successMsg);
               }
 
               if (itemsProcessed === listOfFoldersAndFiles.length) {
@@ -189,22 +208,10 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
 
               // Create new bundle folder if doesn't exist yet
               if (!fs.existsSync(fullNewBundlePath)) {
-                shell.mkdir('-p', fullNewBundlePath);
-                const move = shell.exec(`git mv "${fullCurrentBundlePath}/"* "${fullNewBundlePath}" 2>/dev/null`);
-                const successMsg = `${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`;
-
-                if (move.code === 0) {
-                  console.log(successMsg);
-                } else if (move.code === 128) {
-                  // if "outside repository" error occured
-                  if (shell.mv('-f', fullCurrentBundlePath + '/*', fullNewBundlePath).code === 0) {
-                    console.log(successMsg);
-                  } else {
-                    console.log(`Error moving: "${currentJavaPath}" "${newBundlePath}"`);
-                  }
-                } else {
-                  console.log(move);
-                }
+                fs.mkdirSync(fullNewBundlePath);
+                copyFiles(fullCurrentBundlePath, fullNewBundlePath);
+                fs.unlinkSync(fullCurrentBundlePath);
+                console.log(`${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`);
               }
 
               const vars = {
@@ -223,14 +230,12 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
           new Promise(resolve => {
             let filePathsCount = 0;
             const { currentBundleID, newBundleID, newBundlePath, javaFileBase, currentJavaPath, newJavaPath } = params;
-            console.log(`BUNDLE IDENTIFIER PARAMS: ${params}`);
             bundleIdentifiers(currentAppName, newName, projectName, currentBundleID, newBundleID, newBundlePath).map(
               file => {
                 filePathsCount += file.paths.length - 1;
                 let itemsProcessed = 0;
 
                 file.paths.map((filePath, index) => {
-                  console.log(`BUNDLE IDENTIFIER FILE PATH: ${filePath}`);
                   const newPaths = [];
                   if (fs.existsSync(path.join(__dirname, filePath))) {
                     newPaths.push(path.join(__dirname, filePath));
