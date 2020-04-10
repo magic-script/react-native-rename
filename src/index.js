@@ -149,7 +149,6 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               if (fs.existsSync(path.join(__dirname, element)) || !fs.existsSync(path.join(__dirname, element))) {
                 console.log(`Resolve folders and files directory exists: ${path.join(__dirname, element)}`);
                 copyFileOrDir(path.join(__dirname, element), path.join(__dirname, dest));
-                fs.unlinkSync(path.join(__dirname, element));
                 console.log(successMsg);
               }
 
@@ -210,7 +209,6 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               if (!fs.existsSync(fullNewBundlePath)) {
                 fs.mkdirSync(fullNewBundlePath);
                 copyFiles(fullCurrentBundlePath, fullNewBundlePath);
-                fs.unlinkSync(fullCurrentBundlePath);
                 console.log(`${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`);
               }
 
