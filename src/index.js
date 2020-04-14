@@ -45,6 +45,28 @@ function replaceContent(regex, replacement, paths) {
   }
 }
 
+function deleteFiles(path) {
+  var files = [];
+  if (fs.existsSync(path)) {
+    if (fs.lstatSync(path).isFile()) {
+      fs.unlinkSync(path);
+    } else {
+      files = fs.readdirSync(path);
+      files.forEach(function(file, index) {
+        var curPath = path + '/' + file;
+        if (fs.lstatSync(curPath).isDirectory()) {
+          console.log(`Delete files, is directory, ${curPath}`);
+          deleteFiles(curPath);
+        } else {
+          console.log(`Delete files, is file, ${curPath}`);
+          fs.unlinkSync(curPath);
+        }
+      });
+      fs.rmdirSync(path);
+    }
+  }
+}
+
 const deletePreviousBundleDirectory = ({ oldBundleNameDir, shouldDelete }) => {
   if (shouldDelete) {
     const dir = oldBundleNameDir.replace(/\./g, '/');
@@ -149,6 +171,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               if (fs.existsSync(path.join(__dirname, element)) || !fs.existsSync(path.join(__dirname, element))) {
                 console.log(`Resolve folders and files directory exists: ${path.join(__dirname, element)}`);
                 copyFileOrDir(path.join(__dirname, element), path.join(__dirname, dest));
+                deleteFiles(path.join(__dirname, element));
                 console.log(successMsg);
               }
 
@@ -207,8 +230,9 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
 
               // Create new bundle folder if doesn't exist yet
               if (!fs.existsSync(fullNewBundlePath)) {
-                fs.mkdirSync(fullNewBundlePath);
+                shell.mkdir('-p', fullNewBundlePath);
                 copyFiles(fullCurrentBundlePath, fullNewBundlePath);
+                deleteFiles(fullCurrentBundlePath);
                 console.log(`${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`);
               }
 
