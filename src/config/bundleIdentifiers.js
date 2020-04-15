@@ -1,5 +1,6 @@
 // nS - No Space
 // lC - Lowercase
+import path from 'path';
 
 export function bundleIdentifiers(currentAppName, newName, projectName, currentBundleID, newBundleID, newBundlePath) {
   const nS_CurrentAppName = currentAppName.replace(/\s/g, '');
@@ -16,12 +17,15 @@ export function bundleIdentifiers(currentAppName, newName, projectName, currentB
     {
       regex: currentBundleID,
       replacement: newBundleID,
-      paths: [`${newBundlePath}/MainActivity.java`, `${newBundlePath}/MainApplication.java`],
+      paths: [
+        path.join(`${newBundlePath}`, 'MainActivity.java'),
+        path.join(`${newBundlePath}`, 'MainApplication.java'),
+      ],
     },
     {
       regex: lC_Ns_CurrentBundleID,
       replacement: lC_Ns_NewBundleID,
-      paths: [`${newBundlePath}/MainApplication.java`],
+      paths: [path.join(`${newBundlePath}`, 'MainApplication.java')],
     },
     {
       // App name (probably) doesn't start with `.`, but the bundle ID will
@@ -30,12 +34,12 @@ export function bundleIdentifiers(currentAppName, newName, projectName, currentB
       // replaced by an update to the app name with the same bundle ID
       regex: new RegExp(`(?!\\.)(.|^)${nS_CurrentAppName}`, 'g'),
       replacement: `$1${nS_NewName}`,
-      paths: [`${newBundlePath}/MainActivity.java`],
+      paths: [path.join(`${newBundlePath}`, 'MainActivity.java')],
     },
     {
       regex: currentBundleID,
       replacement: newBundleID,
-      paths: [`ios/${nS_NewName}.xcodeproj/project.pbxproj`],
+      paths: [path.join('ios', `${nS_NewName}.xcodeproj`, 'project.pbxproj')],
     },
   ];
 }

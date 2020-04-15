@@ -45,6 +45,28 @@ function replaceContent(regex, replacement, paths) {
   }
 }
 
+function deleteFiles(path) {
+  var files = [];
+  if (fs.existsSync(path)) {
+    if (fs.lstatSync(path).isFile()) {
+      fs.unlinkSync(path);
+    } else {
+      files = fs.readdirSync(path);
+      files.forEach(function(file, index) {
+        var curPath = path + '/' + file;
+        if (fs.lstatSync(curPath).isDirectory()) {
+          console.log(`Delete files, is directory, ${curPath}`);
+          deleteFiles(curPath);
+        } else {
+          console.log(`Delete files, is file, ${curPath}`);
+          fs.unlinkSync(curPath);
+        }
+      });
+      fs.rmdirSync(path);
+    }
+  }
+}
+
 const deletePreviousBundleDirectory = ({ oldBundleNameDir, shouldDelete }) => {
   if (shouldDelete) {
     const dir = oldBundleNameDir.replace(/\./g, '/');
@@ -67,6 +89,35 @@ const cleanBuilds = () => {
   Promise.resolve(deleteDirectories);
   console.log('Done removing builds.'.green);
 };
+
+function copyFiles(srcPath, destPath) {
+  if (!fs.existsSync(destPath)) {
+    fs.mkdirSync(destPath);
+  }
+  const filesToCreate = fs.readdirSync(srcPath);
+  filesToCreate.forEach(file => {
+    const origFilePath = `${srcPath}/${file}`;
+    const stats = fs.statSync(origFilePath);
+    if (stats.isFile()) {
+      var contents = fs.readFileSync(origFilePath, 'utf8');
+      const writePath = `${destPath}/${file}`;
+      fs.writeFileSync(writePath, contents, 'utf8');
+    } else if (stats.isDirectory()) {
+      let newDestPath = `${destPath}/${file}`;
+      copyFiles(origFilePath, newDestPath);
+    }
+  });
+}
+
+function copyFileOrDir(element, destPath) {
+  const stats = fs.statSync(element);
+  if (stats.isFile()) {
+    var contents = fs.readFileSync(element, 'utf8');
+    fs.writeFileSync(destPath, contents, 'utf8');
+  } else if (stats.isDirectory()) {
+    copyFiles(element, destPath);
+  }
+}
 
 readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
   .then(data => {
@@ -118,20 +169,10 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               itemsProcessed += index;
 
               if (fs.existsSync(path.join(__dirname, element)) || !fs.existsSync(path.join(__dirname, element))) {
-                const move = shell.exec(
-                  `git mv "${path.join(__dirname, element)}" "${path.join(__dirname, dest)}" 2>/dev/null`
-                );
-
-                if (move.code === 0) {
-                  console.log(successMsg);
-                } else if (move.code === 128) {
-                  // if "outside repository" error occured
-                  if (shell.mv('-f', path.join(__dirname, element), path.join(__dirname, dest)).code === 0) {
-                    console.log(successMsg);
-                  } else {
-                    console.log("Ignore above error if this file doesn't exist");
-                  }
-                }
+                console.log(`Resolve folders and files directory exists: ${path.join(__dirname, element)}`);
+                copyFileOrDir(path.join(__dirname, element), path.join(__dirname, dest));
+                deleteFiles(path.join(__dirname, element));
+                console.log(successMsg);
               }
 
               if (itemsProcessed === listOfFoldersAndFiles.length) {
@@ -146,6 +187,7 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
           new Promise(resolve => {
             let filePathsCount = 0;
             let itemsProcessed = 0;
+            console.log(`Files to modify content: ${listOfFilesToModifyContent}`);
             listOfFilesToModifyContent.map(file => {
               filePathsCount += file.paths.length;
 
@@ -189,19 +231,9 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
               // Create new bundle folder if doesn't exist yet
               if (!fs.existsSync(fullNewBundlePath)) {
                 shell.mkdir('-p', fullNewBundlePath);
-                const move = shell.exec(`git mv "${fullCurrentBundlePath}/"* "${fullNewBundlePath}" 2>/dev/null`);
-                const successMsg = `${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`;
-
-                if (move.code === 0) {
-                  console.log(successMsg);
-                } else if (move.code === 128) {
-                  // if "outside repository" error occured
-                  if (shell.mv('-f', fullCurrentBundlePath + '/*', fullNewBundlePath).code === 0) {
-                    console.log(successMsg);
-                  } else {
-                    console.log(`Error moving: "${currentJavaPath}" "${newBundlePath}"`);
-                  }
-                }
+                copyFiles(fullCurrentBundlePath, fullNewBundlePath);
+                deleteFiles(fullCurrentBundlePath);
+                console.log(`${newBundlePath} ${colors.green('BUNDLE INDENTIFIER CHANGED')}`);
               }
 
               const vars = {
@@ -220,7 +252,6 @@ readFile(path.join(__dirname, 'android/app/src/main/res/values/strings.xml'))
           new Promise(resolve => {
             let filePathsCount = 0;
             const { currentBundleID, newBundleID, newBundlePath, javaFileBase, currentJavaPath, newJavaPath } = params;
-
             bundleIdentifiers(currentAppName, newName, projectName, currentBundleID, newBundleID, newBundlePath).map(
               file => {
                 filePathsCount += file.paths.length - 1;
